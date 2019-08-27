@@ -1,10 +1,13 @@
 sudo: required
 services:
   - docker
+# add here all development builds...
 before_install:
   - docker build -t deoneloff/react-test -f ./client/Dockerfile.dev ./client
+# add here all tests but for now, I'm only testing the client
 script:
   - docker run -e CI=true deoneloff/react-test npm run test -- --coverage
+# if all scripts above ran successfully, continue
 after_success:
   - docker build -t deoneloff/multi-client ./client
   - docker build -t deoneloff/multi-nginx ./nginx
@@ -15,19 +18,20 @@ after_success:
   - docker push deoneloff/multi-nginx
   - docker push deoneloff/multi-server
   - docker push deoneloff/multi-worker
-  
-# deploy:
-#   provider: elasticbeanstalk
-#   region: us-east-2
-#   app: docker-react
-#   env: DockerReact-env
-#   bucket_name: elasticbeanstalk-us-east-2-349384900197
-#   bucket_path: "docker-react"
-#   on:
-#     branch: master
-#   access_key_id: $AWS_ACCESS_KEY
-#   secret_access_key:
-#     secure: "$AWS_SECRET_KEY"
+
+deploy:
+  provider: elasticbeanstalk
+  region: us-east-2
+  app: multi-docker
+  env: MultiDocker-env
+  bucket_name: elasticbeanstalk-us-east-2-349384900197
+  bucket_path: "docker-multi"
+  on:
+    branch: master
+  access_key_id: 
+    secure: "$AWS_ACCESS_KEY"
+  secret_access_key:
+    secure: "$AWS_SECRET_KEY"
 
 
 # DockerReact-env.cnhfhxvtwj.us-east-2.elasticbeanstalk.com
